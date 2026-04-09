@@ -1,0 +1,49 @@
+# Graph Extractor Configuration
+
+# PDF Processing
+pdf:
+  dpi: 300
+  poppler_path: null  # Set if needed on Windows
+
+# Layout Detection
+layout:
+  model_path: "lp://efficientdet/PubLayNet"  # LayoutParser model
+  threshold: 0.5
+
+# Graph Detection
+graph:
+  min_aspect_ratio: 1.2
+  max_aspect_ratio: 5.0
+  min_edge_density: 0.1
+  axis_detection_threshold: 0.7
+
+# OCR Settings
+ocr:
+  engine: "tesseract"  # or "paddle" (if installed)
+  lang: "eng"
+  config: "--psm 6"
+
+# Ollama LLM
+ollama:
+  model: "mistral"
+  temperature: 0.1
+  max_tokens: 200
+
+# Image Processing
+image:
+  format: "PNG"
+  quality: 95
+
+# Caption Matching
+caption:
+  max_distance: 100  # pixels
+  keywords: ["Figure", "Fig.", "Graph", "Chart", "Plot"]
+
+# Output
+output:
+  export_csv: true
+
+# Logging
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
