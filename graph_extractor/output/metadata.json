@@ -1,0 +1,32 @@
+{
+  "graph_001.png": {
+    "page": 1,
+    "caption": "Figure from page 1",
+    "type": "detected_region",
+    "confidence": 0.8
+  },
+  "graph_002.png": {
+    "page": 2,
+    "caption": "Figure from page 2",
+    "type": "detected_region",
+    "confidence": 0.8
+  },
+  "graph_003.png": {
+    "page": 2,
+    "caption": "Figure from page 2",
+    "type": "detected_region",
+    "confidence": 0.8
+  },
+  "graph_004.png": {
+    "page": 3,
+    "caption": "Figure from page 3",
+    "type": "detected_region",
+    "confidence": 0.8
+  },
+  "graph_005.png": {
+    "page": 3,
+    "caption": "Figure from page 3",
+    "type": "detected_region",
+    "confidence": 0.8
+  }
+}

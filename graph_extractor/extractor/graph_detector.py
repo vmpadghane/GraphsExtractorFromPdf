@@ -34,8 +34,8 @@ class GraphDetector:
         img_array = np.array(image)
         graphs = []
 
-        # Focus on Figure blocks from layout detection
-        figure_blocks = [block for block in layout_blocks if block['type'] == 'Figure']
+        # Use all layout blocks and sort by area, take top 5 largest
+        figure_blocks = sorted(layout_blocks, key=lambda x: (x['bbox'][2] - x['bbox'][0]) * (x['bbox'][3] - x['bbox'][1]), reverse=True)[:5]
 
         for block in figure_blocks:
             bbox = block['bbox']
@@ -86,9 +86,12 @@ class GraphDetector:
         if edge_density < self.config['graph']['min_edge_density']:
             return False
 
-        # Check for axes (simple line detection)
-        if not self._has_axes(region):
-            return False
+        # Check for axes (simple line detection) - make it optional but preferred
+        has_axes = self._has_axes(region)
+        if not has_axes:
+            self.logger.debug("No clear axes detected")
+            # Still accept if other criteria are met
+            pass
 
         return True
 

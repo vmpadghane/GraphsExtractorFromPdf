@@ -35,11 +35,11 @@ class PDFLoader:
 
         self.logger.info(f"Loading PDF: {pdf_path}")
 
-        # Use pdf2image for high-quality image conversion
-        dpi = self.config['pdf'].get('dpi', 300)
-        poppler_path = self.config['pdf'].get('poppler_path')
-
+        # Try pdf2image first
         try:
+            dpi = self.config['pdf'].get('dpi', 300)
+            poppler_path = self.config['pdf'].get('poppler_path')
+
             images = convert_from_path(
                 pdf_path,
                 dpi=dpi,
@@ -48,8 +48,36 @@ class PDFLoader:
             self.logger.info(f"Converted {len(images)} pages to images")
             return images
         except Exception as e:
-            self.logger.error(f"Error converting PDF to images: {e}")
-            raise
+            self.logger.warning(f"pdf2image failed: {e}, trying alternative method")
+
+            # Fallback: use pypdf to extract images
+            try:
+                with open(pdf_path, 'rb') as f:
+                    pdf = pypdf.PdfReader(f)
+                    images = []
+
+                    for page_num in range(len(pdf.pages)):
+                        page = pdf.pages[page_num]
+
+                        # Try to extract images from the page
+                        for image_key in page.images:
+                            image_obj = page.images[image_key]
+                            image_data = image_obj.data
+
+                            # Convert to PIL Image
+                            from io import BytesIO
+                            img = Image.open(BytesIO(image_data))
+                            images.append(img)
+
+                    if images:
+                        self.logger.info(f"Extracted {len(images)} images from PDF")
+                        return images
+                    else:
+                        raise Exception("No images found in PDF")
+
+            except Exception as e2:
+                self.logger.error(f"Alternative method also failed: {e2}")
+                raise Exception(f"Could not load PDF: {e} and {e2}")
 
     def get_page_count(self, pdf_path: str) -> int:
         """

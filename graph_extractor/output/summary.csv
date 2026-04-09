@@ -1,0 +1,6 @@
+image_name,page,caption,type,confidence
+graph_001.png,1,Figure from page 1,detected_region,0.8
+graph_002.png,2,Figure from page 2,detected_region,0.8
+graph_003.png,2,Figure from page 2,detected_region,0.8
+graph_004.png,3,Figure from page 3,detected_region,0.8
+graph_005.png,3,Figure from page 3,detected_region,0.8

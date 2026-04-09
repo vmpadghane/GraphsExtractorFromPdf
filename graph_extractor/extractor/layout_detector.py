@@ -1,34 +1,26 @@
 """
 Layout Detector Module
 
-Uses LayoutParser to detect layout blocks in images.
+Uses OpenCV for basic layout detection as fallback.
 """
 
 import logging
 from typing import List, Dict, Any
 from PIL import Image
-import layoutparser as lp
+import cv2
 import numpy as np
 
 
 class LayoutDetector:
-    """Detects layout blocks using LayoutParser."""
+    """Detects layout blocks using OpenCV."""
 
     def __init__(self, config: dict):
         self.config = config
         self.logger = logging.getLogger(__name__)
 
-        # Initialize LayoutParser model
-        model_path = config['layout']['model_path']
-        self.model = lp.Detectron2LayoutModel(
-            model_path,
-            extra_config=["MODEL.ROI_HEADS.SCORE_THRESH_TEST", config['layout']['threshold']],
-            label_map={0: "Text", 1: "Title", 2: "List", 3: "Table", 4: "Figure"}
-        )
-
     def detect_layout(self, image: Image.Image) -> List[Dict[str, Any]]:
         """
-        Detect layout blocks in the image.
+        Detect basic layout blocks using OpenCV.
 
         Args:
             image: PIL image
@@ -36,21 +28,42 @@ class LayoutDetector:
         Returns:
             List of detected blocks with coordinates and types
         """
-        self.logger.debug("Detecting layout blocks")
+        self.logger.debug("Detecting layout blocks with OpenCV")
 
         # Convert PIL to numpy array
         img_array = np.array(image)
+        gray = cv2.cvtColor(img_array, cv2.COLOR_RGB2GRAY)
 
-        # Detect layout
-        layout = self.model.detect(img_array)
+        # Simple thresholding to find text regions
+        _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+
+        # Find contours
+        contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         blocks = []
-        for block in layout:
-            blocks.append({
-                'type': block.type,
-                'bbox': block.coordinates,  # (x1, y1, x2, y2)
-                'score': block.score
-            })
+        height, width = gray.shape
+
+        for i, contour in enumerate(contours):
+            x, y, w, h = cv2.boundingRect(contour)
+
+            # Filter small contours
+            if w > 50 and h > 20:
+                # Classify as Text or Figure based on size
+                area = w * h
+                self.logger.debug(f"Block: w={w}, h={h}, area={area}")
+                if area > 5000:  # Lower threshold for figures
+                    block_type = "Figure"
+                else:
+                    block_type = "Text"
+                block_type = "Text"
+                blocks.append({
+                    'type': block_type,
+                    'bbox': (x, y, x + w, y + h),
+                    'score': 0.5  # Default confidence
+                })
 
         self.logger.debug(f"Detected {len(blocks)} layout blocks")
+        # Debug: print block types
+        types = [block['type'] for block in blocks]
+        self.logger.info(f"Block types found: {types}")
         return blocks

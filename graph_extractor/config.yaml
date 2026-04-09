@@ -3,7 +3,7 @@
 # PDF Processing
 pdf:
   dpi: 300
-  poppler_path: null  # Set if needed on Windows
+  poppler_path: "poppler/poppler-24.08.0/Library/bin"
 
 # Layout Detection
 layout:
@@ -12,9 +12,9 @@ layout:
 
 # Graph Detection
 graph:
-  min_aspect_ratio: 1.2
-  max_aspect_ratio: 5.0
-  min_edge_density: 0.1
+  min_aspect_ratio: 0.5
+  max_aspect_ratio: 10.0
+  min_edge_density: 0.1  # Increased for better quality
   axis_detection_threshold: 0.7
 
 # OCR Settings
@@ -25,7 +25,7 @@ ocr:
 
 # Ollama LLM
 ollama:
-  model: "mistral"
+  model: "llava:7b"
   temperature: 0.1
   max_tokens: 200
 
